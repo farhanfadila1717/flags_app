@@ -1,10 +1,8 @@
-import 'dart:async';
-
-import 'package:after_layout/after_layout.dart';
 import 'package:flags_app/core/models/flag/flag.dart';
 import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/ui/components/tts_card.dart';
+import 'package:flags_app/ui/components/tts_mixin.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 class DetailFlagPage extends StatefulActionMapper {
   const DetailFlagPage({
@@ -18,20 +16,17 @@ class DetailFlagPage extends StatefulActionMapper {
   State<DetailFlagPage> createState() => _DetailFlagPageState();
 }
 
-class _DetailFlagPageState extends State<DetailFlagPage> with AfterLayoutMixin {
+class _DetailFlagPageState extends State<DetailFlagPage> with TtsMixin {
   @override
-  FutureOr<void> afterFirstLayout(BuildContext context) {
-    _playAudio();
+  void initState() {
+    super.initState();
+    initTts('${widget.flag.name}\n${widget.flag.descriptions}');
   }
-
-  FlutterTts get _flutterTts => widget.getIt.get<FlutterTts>();
-
-  void _playAudio() =>
-      _flutterTts.speak('${widget.flag.name}\n${widget.flag.descriptions}');
 
   @override
   void dispose() {
-    _flutterTts.stop();
+    speakingWord.dispose();
+    flutterTts.stop();
     super.dispose();
   }
 
@@ -42,6 +37,12 @@ class _DetailFlagPageState extends State<DetailFlagPage> with AfterLayoutMixin {
         title: Text(
           widget.flag.name,
         ),
+      ),
+      floatingActionButton: TtsCard(
+        speakingWord: speakingWord,
+        ttsState: ttsState,
+        onPlay: playAudio,
+        onPause: flutterTts.stop,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
