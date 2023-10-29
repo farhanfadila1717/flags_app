@@ -42,9 +42,17 @@ class _QuestionCardState extends State<QuestionCard> with AfterLayoutMixin {
     widget.getIt.get<FlutterTts>().speak(voiceText);
   }
 
+  FlutterTts get flutterTts => widget.getIt.get<FlutterTts>();
+
   void _onSelectAnswer(Answer answer) {
     widget.onAnswer(answer);
-    widget.getIt.get<FlutterTts>().speak('Anda memilih ${answer.text}');
+    flutterTts.speak('Anda memilih ${answer.text}');
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
   }
 
   @override
