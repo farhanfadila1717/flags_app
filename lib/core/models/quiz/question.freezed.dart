@@ -25,6 +25,7 @@ mixin _$Question {
   String get image => throw _privateConstructorUsedError;
   List<Answer> get answers => throw _privateConstructorUsedError;
   String get audio => throw _privateConstructorUsedError;
+  num get level => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -42,7 +43,8 @@ abstract class $QuestionCopyWith<$Res> {
       String question,
       String image,
       List<Answer> answers,
-      String audio});
+      String audio,
+      num level});
 }
 
 /// @nodoc
@@ -63,6 +65,7 @@ class _$QuestionCopyWithImpl<$Res, $Val extends Question>
     Object? image = null,
     Object? answers = null,
     Object? audio = null,
+    Object? level = null,
   }) {
     return _then(_value.copyWith(
       no: null == no
@@ -85,6 +88,10 @@ class _$QuestionCopyWithImpl<$Res, $Val extends Question>
           ? _value.audio
           : audio // ignore: cast_nullable_to_non_nullable
               as String,
+      level: null == level
+          ? _value.level
+          : level // ignore: cast_nullable_to_non_nullable
+              as num,
     ) as $Val);
   }
 }
@@ -102,7 +109,8 @@ abstract class _$$QuestionImplCopyWith<$Res>
       String question,
       String image,
       List<Answer> answers,
-      String audio});
+      String audio,
+      num level});
 }
 
 /// @nodoc
@@ -121,6 +129,7 @@ class __$$QuestionImplCopyWithImpl<$Res>
     Object? image = null,
     Object? answers = null,
     Object? audio = null,
+    Object? level = null,
   }) {
     return _then(_$QuestionImpl(
       no: null == no
@@ -143,6 +152,10 @@ class __$$QuestionImplCopyWithImpl<$Res>
           ? _value.audio
           : audio // ignore: cast_nullable_to_non_nullable
               as String,
+      level: null == level
+          ? _value.level
+          : level // ignore: cast_nullable_to_non_nullable
+              as num,
     ));
   }
 }
@@ -156,7 +169,8 @@ class _$QuestionImpl extends _Question {
       required this.question,
       required this.image,
       required final List<Answer> answers,
-      required this.audio})
+      required this.audio,
+      required this.level})
       : _answers = answers,
         super._();
 
@@ -179,10 +193,12 @@ class _$QuestionImpl extends _Question {
 
   @override
   final String audio;
+  @override
+  final num level;
 
   @override
   String toString() {
-    return 'Question(no: $no, question: $question, image: $image, answers: $answers, audio: $audio)';
+    return 'Question(no: $no, question: $question, image: $image, answers: $answers, audio: $audio, level: $level)';
   }
 
   @override
@@ -195,13 +211,14 @@ class _$QuestionImpl extends _Question {
                 other.question == question) &&
             (identical(other.image, image) || other.image == image) &&
             const DeepCollectionEquality().equals(other._answers, _answers) &&
-            (identical(other.audio, audio) || other.audio == audio));
+            (identical(other.audio, audio) || other.audio == audio) &&
+            (identical(other.level, level) || other.level == level));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, no, question, image,
-      const DeepCollectionEquality().hash(_answers), audio);
+      const DeepCollectionEquality().hash(_answers), audio, level);
 
   @JsonKey(ignore: true)
   @override
@@ -223,7 +240,8 @@ abstract class _Question extends Question {
       required final String question,
       required final String image,
       required final List<Answer> answers,
-      required final String audio}) = _$QuestionImpl;
+      required final String audio,
+      required final num level}) = _$QuestionImpl;
   const _Question._() : super._();
 
   factory _Question.fromJson(Map<String, dynamic> json) =
@@ -239,6 +257,8 @@ abstract class _Question extends Question {
   List<Answer> get answers;
   @override
   String get audio;
+  @override
+  num get level;
   @override
   @JsonKey(ignore: true)
   _$$QuestionImplCopyWith<_$QuestionImpl> get copyWith =>

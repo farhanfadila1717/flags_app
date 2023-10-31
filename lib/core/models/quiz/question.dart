@@ -16,6 +16,7 @@ class Question with _$Question {
     required String image,
     required List<Answer> answers,
     required String audio,
+    required num level,
   }) = _Question;
 
   factory Question.fromJson(Map<String, dynamic> json) =>

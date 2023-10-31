@@ -19,9 +19,9 @@ class QuizPage extends StatefulActionMapper {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  bool _isPlay = false;
+  bool _isPlay = false, _showLevelChanged = false;
   final Map<Question, Answer> _answers = {};
-  int _index = 0;
+  int _index = 0, _level = 1;
 
   List<Question> get questions => widget.store.state.questions;
 
@@ -36,7 +36,15 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Stack(
       children: [
         const Positioned.fill(
@@ -81,58 +89,110 @@ class _QuizPageState extends State<QuizPage> {
                     return Scaffold(
                       backgroundColor: Colors.transparent,
                       appBar: AppBar(
-                        leading: IconButton(
-                          onPressed: () {
-                            if (_index == 0) {
-                              Navigator.pop(context);
-                              return;
-                            }
-                            setState(() {
-                              _index--;
-                            });
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                        ),
+                        leading: _showLevelChanged
+                            ? const SizedBox.shrink()
+                            : IconButton(
+                                onPressed: () {
+                                  if (_index == 0) {
+                                    Navigator.pop(context);
+                                    return;
+                                  }
+                                  setState(() {
+                                    _index--;
+                                  });
+                                },
+                                icon: const Icon(Icons.arrow_back),
+                              ),
                       ),
                       floatingActionButtonLocation:
                           FloatingActionButtonLocation.centerDocked,
-                      floatingActionButton: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                        child: SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: PrimaryButton(
-                            text: isLast ? 'Selesai' : 'Selanjutnya',
-                            onTap: hasAnswer
-                                ? () {
-                                    if (isLast) {
-                                      widget.store.dispatch(
-                                        NavigateToAndReplaceAction(
-                                          '/results-quiz',
-                                          extra: _answers,
-                                        ),
-                                      );
-                                      return;
+                      floatingActionButton: Visibility(
+                        visible: !_showLevelChanged,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          child: SizedBox(
+                            height: 50,
+                            width: double.infinity,
+                            child: PrimaryButton(
+                              text: isLast ? 'Selesai' : 'Selanjutnya',
+                              onTap: hasAnswer
+                                  ? () {
+                                      if (isLast) {
+                                        widget.store.dispatch(
+                                          NavigateToAndReplaceAction(
+                                            '/results-quiz',
+                                            extra: _answers,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      _showLevelChanged =
+                                          questions[_index + 1].level.toInt() >
+                                              _level;
+
+                                      if (_showLevelChanged) _level++;
+
+                                      _index++;
+                                      setState(() {});
                                     }
-                                    _index++;
-                                    setState(() {});
-                                  }
-                                : null,
+                                  : null,
+                            ),
                           ),
                         ),
                       ),
                       body: ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         children: [
-                          QuestionCard(
-                            key: ValueKey(question),
-                            question: question,
-                            answers: _answers,
-                            onAnswer: (answer) => _onAnswer(
-                              question,
-                              answer,
+                          if (_showLevelChanged) ...[
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: size.height * .25,
+                                bottom: 20,
+                              ),
+                              child: Text(
+                                'Babak Baru\nLevel ${question.level}',
+                                style: GoogleFonts.lilitaOne(
+                                  fontSize: 30,
+                                  color: Colors.black,
+                                ),
+                                textAlign: TextAlign.center,
+                              )
+                                  .animate()
+                                  .scale(
+                                    curve: Curves.fastOutSlowIn,
+                                    duration: const Duration(milliseconds: 400),
+                                  )
+                                  .fadeIn(),
                             ),
-                          ),
+                            Center(
+                              child: SizedBox(
+                                height: 45,
+                                width: 250,
+                                child: PrimaryButton(
+                                  text: 'Lanjutkan',
+                                  onTap: () {
+                                    setState(() {
+                                      _showLevelChanged = false;
+                                    });
+                                  },
+                                ),
+                              )
+                                  .animate(
+                                    delay: const Duration(milliseconds: 400),
+                                  )
+                                  .fadeIn(),
+                            ),
+                          ] else
+                            QuestionCard(
+                              key: ValueKey(question),
+                              question: question,
+                              answers: _answers,
+                              onAnswer: (answer) => _onAnswer(
+                                question,
+                                answer,
+                              ),
+                            ),
                         ],
                       ),
                     );
