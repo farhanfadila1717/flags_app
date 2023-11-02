@@ -38,6 +38,12 @@ class _AboutDialogState extends State<AboutDialog> {
   }
 
   @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -54,7 +60,9 @@ class _AboutDialogState extends State<AboutDialog> {
           final about = state.about;
 
           if (about == null) {
-            return const Center(child: CircularProgressIndicator.adaptive());
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
           }
           return Column(
             mainAxisSize: MainAxisSize.min,
