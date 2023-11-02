@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flags_app/core/models/about/about.dart';
 import 'package:flags_app/core/models/flag/flag.dart';
 import 'package:flags_app/core/models/quiz/answer.dart';
 import 'package:flags_app/core/models/quiz/question.dart';
@@ -25,6 +26,9 @@ class AppMiddleware extends MiddlewareClass<AppState> {
         break;
       case GetFlagsAction:
         _onGetFlagsAction(store, action);
+        break;
+      case GetAboutAction:
+        _onGetAboutAction(store, action);
         break;
     }
 
@@ -89,6 +93,27 @@ class AppMiddleware extends MiddlewareClass<AppState> {
 
       store.dispatch(
         SetFlagsAction(flags),
+      );
+    } catch (ex) {
+      debugPrint(ex.toString());
+    }
+  }
+
+  Future<void> _onGetAboutAction(
+    Store<AppState> store,
+    GetAboutAction action,
+  ) async {
+    try {
+      final collection = firestore.collection('about');
+
+      final response = await collection.get();
+
+      store.dispatch(
+        SetAboutAction(
+          About.fromJson(
+            response.docs.first.data(),
+          ),
+        ),
       );
     } catch (ex) {
       debugPrint(ex.toString());

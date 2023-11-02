@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
-    required this.text,
+    this.text,
     this.color,
     this.onTap,
     this.style,
+    this.child,
   });
 
-  final String text;
+  final String? text;
   final Color? color;
   final VoidCallback? onTap;
   final TextStyle? style;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +31,7 @@ class PrimaryButton extends StatelessWidget {
           StadiumBorder(),
         ),
       ),
-      child: Text(
-        text,
-        style: style,
-      ),
+      child: child ?? Text(text ?? '-', style: style),
     );
   }
 }

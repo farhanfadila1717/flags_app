@@ -6,6 +6,7 @@ final appReducer = combineReducers<AppState>(
   [
     TypedReducer<AppState, SetQuestionsAction>(_onSetQuestionsAction),
     TypedReducer<AppState, SetFlagsAction>(_onSetFlagsAction),
+    TypedReducer<AppState, SetAboutAction>(_onSetAboutAction),
   ],
 );
 
@@ -24,5 +25,14 @@ AppState _onSetFlagsAction(
 ) {
   return state.copyWith(
     flags: action.flags,
+  );
+}
+
+AppState _onSetAboutAction(
+  AppState state,
+  SetAboutAction action,
+) {
+  return state.copyWith(
+    about: action.about,
   );
 }

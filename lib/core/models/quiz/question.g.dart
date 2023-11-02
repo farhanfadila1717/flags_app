@@ -23,10 +23,7 @@ Map<String, dynamic> _$$QuestionImplToJson(_$QuestionImpl instance) =>
       'no': instance.no,
       'question': instance.question,
       'image': instance.image,
-      'answers': List.generate(
-        instance.answers.length,
-        (index) => instance.answers[index].toJson(),
-      ),
+      'answers': instance.answers,
       'audio': instance.audio,
       'level': instance.level,
     };

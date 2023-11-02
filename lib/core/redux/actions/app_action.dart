@@ -1,3 +1,4 @@
+import 'package:flags_app/core/models/about/about.dart';
 import 'package:flags_app/core/models/flag/flag.dart';
 import 'package:flags_app/core/models/quiz/question.dart';
 
@@ -25,4 +26,16 @@ class SetFlagsAction {
   final List<Flag> flags;
 
   const SetFlagsAction(this.flags);
+}
+
+class GetAboutAction {
+  const GetAboutAction();
+}
+
+class SetAboutAction {
+  final About about;
+
+  const SetAboutAction(
+    this.about,
+  );
 }

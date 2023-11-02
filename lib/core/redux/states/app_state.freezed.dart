@@ -19,6 +19,7 @@ mixin _$AppState {
   AuthenticationState get authState => throw _privateConstructorUsedError;
   List<Question> get questions => throw _privateConstructorUsedError;
   List<Flag> get flags => throw _privateConstructorUsedError;
+  About? get about => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AppStateCopyWith<AppState> get copyWith =>
@@ -33,9 +34,11 @@ abstract class $AppStateCopyWith<$Res> {
   $Res call(
       {AuthenticationState authState,
       List<Question> questions,
-      List<Flag> flags});
+      List<Flag> flags,
+      About? about});
 
   $AuthenticationStateCopyWith<$Res> get authState;
+  $AboutCopyWith<$Res>? get about;
 }
 
 /// @nodoc
@@ -54,6 +57,7 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
     Object? authState = null,
     Object? questions = null,
     Object? flags = null,
+    Object? about = freezed,
   }) {
     return _then(_value.copyWith(
       authState: null == authState
@@ -68,6 +72,10 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
           ? _value.flags
           : flags // ignore: cast_nullable_to_non_nullable
               as List<Flag>,
+      about: freezed == about
+          ? _value.about
+          : about // ignore: cast_nullable_to_non_nullable
+              as About?,
     ) as $Val);
   }
 
@@ -76,6 +84,18 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
   $AuthenticationStateCopyWith<$Res> get authState {
     return $AuthenticationStateCopyWith<$Res>(_value.authState, (value) {
       return _then(_value.copyWith(authState: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $AboutCopyWith<$Res>? get about {
+    if (_value.about == null) {
+      return null;
+    }
+
+    return $AboutCopyWith<$Res>(_value.about!, (value) {
+      return _then(_value.copyWith(about: value) as $Val);
     });
   }
 }
@@ -91,10 +111,13 @@ abstract class _$$AppStateImplCopyWith<$Res>
   $Res call(
       {AuthenticationState authState,
       List<Question> questions,
-      List<Flag> flags});
+      List<Flag> flags,
+      About? about});
 
   @override
   $AuthenticationStateCopyWith<$Res> get authState;
+  @override
+  $AboutCopyWith<$Res>? get about;
 }
 
 /// @nodoc
@@ -111,6 +134,7 @@ class __$$AppStateImplCopyWithImpl<$Res>
     Object? authState = null,
     Object? questions = null,
     Object? flags = null,
+    Object? about = freezed,
   }) {
     return _then(_$AppStateImpl(
       authState: null == authState
@@ -125,6 +149,10 @@ class __$$AppStateImplCopyWithImpl<$Res>
           ? _value._flags
           : flags // ignore: cast_nullable_to_non_nullable
               as List<Flag>,
+      about: freezed == about
+          ? _value.about
+          : about // ignore: cast_nullable_to_non_nullable
+              as About?,
     ));
   }
 }
@@ -135,7 +163,8 @@ class _$AppStateImpl extends _AppState {
   const _$AppStateImpl(
       {this.authState = const AuthenticationState(),
       final List<Question> questions = const [],
-      final List<Flag> flags = const []})
+      final List<Flag> flags = const [],
+      this.about})
       : _questions = questions,
         _flags = flags,
         super._();
@@ -162,8 +191,11 @@ class _$AppStateImpl extends _AppState {
   }
 
   @override
+  final About? about;
+
+  @override
   String toString() {
-    return 'AppState(authState: $authState, questions: $questions, flags: $flags)';
+    return 'AppState(authState: $authState, questions: $questions, flags: $flags, about: $about)';
   }
 
   @override
@@ -175,7 +207,8 @@ class _$AppStateImpl extends _AppState {
                 other.authState == authState) &&
             const DeepCollectionEquality()
                 .equals(other._questions, _questions) &&
-            const DeepCollectionEquality().equals(other._flags, _flags));
+            const DeepCollectionEquality().equals(other._flags, _flags) &&
+            (identical(other.about, about) || other.about == about));
   }
 
   @override
@@ -183,7 +216,8 @@ class _$AppStateImpl extends _AppState {
       runtimeType,
       authState,
       const DeepCollectionEquality().hash(_questions),
-      const DeepCollectionEquality().hash(_flags));
+      const DeepCollectionEquality().hash(_flags),
+      about);
 
   @JsonKey(ignore: true)
   @override
@@ -196,7 +230,8 @@ abstract class _AppState extends AppState {
   const factory _AppState(
       {final AuthenticationState authState,
       final List<Question> questions,
-      final List<Flag> flags}) = _$AppStateImpl;
+      final List<Flag> flags,
+      final About? about}) = _$AppStateImpl;
   const _AppState._() : super._();
 
   @override
@@ -205,6 +240,8 @@ abstract class _AppState extends AppState {
   List<Question> get questions;
   @override
   List<Flag> get flags;
+  @override
+  About? get about;
   @override
   @JsonKey(ignore: true)
   _$$AppStateImplCopyWith<_$AppStateImpl> get copyWith =>

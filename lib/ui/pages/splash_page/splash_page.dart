@@ -21,6 +21,7 @@ class _SplashPageState extends State<SplashPage> with AfterLayoutMixin {
       const GetCurrentLoginAction(),
       const GetQuestionsAction(),
       const GetFlagsAction(),
+      const GetAboutAction(),
     ]);
   }
 
