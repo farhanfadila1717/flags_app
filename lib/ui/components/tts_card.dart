@@ -33,7 +33,7 @@ class TtsCard extends StatelessWidget {
               return FloatingActionButton(
                 heroTag: 'play',
                 onPressed: onPlay,
-                child: const Icon(Icons.play_arrow),
+                child: const Icon(Icons.library_music_outlined),
               );
             },
           ),

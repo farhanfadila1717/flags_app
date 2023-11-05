@@ -11,6 +11,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'components/question_card.dart';
 
+const _kColors = [
+  Colors.green,
+  Colors.blue,
+  Colors.deepOrange,
+];
+
 class QuizPage extends StatefulActionMapper {
   const QuizPage({super.key});
 
@@ -19,11 +25,13 @@ class QuizPage extends StatefulActionMapper {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  bool _isPlay = false, _showLevelChanged = false;
+  bool _isPlay = false, _showChooseLevel = true;
   final Map<Question, Answer> _answers = {};
   int _index = 0, _level = 1;
 
-  List<Question> get questions => widget.store.state.questions;
+  List<Question> get questions => widget.store.state.questions
+      .where((e) => e.level.toInt() == _level)
+      .toList();
 
   void _onAnswer(Question question, Answer answer) async {
     if (_answers.containsKey(question)) {
@@ -45,6 +53,8 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final viewPadding = MediaQuery.viewPaddingOf(context);
+
     return Stack(
       children: [
         const Positioned.fill(
@@ -52,8 +62,9 @@ class _QuizPageState extends State<QuizPage> {
             color: Colors.white,
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
+        Positioned(
+          bottom: viewPadding.bottom,
+          width: size.width,
           child: Image.asset(
             'assets/images/bg_kuis.png',
             alignment: Alignment.bottomCenter,
@@ -89,7 +100,8 @@ class _QuizPageState extends State<QuizPage> {
                     return Scaffold(
                       backgroundColor: Colors.transparent,
                       appBar: AppBar(
-                        leading: _showLevelChanged
+                        backgroundColor: Colors.transparent,
+                        leading: _showChooseLevel
                             ? const SizedBox.shrink()
                             : IconButton(
                                 onPressed: () {
@@ -107,7 +119,7 @@ class _QuizPageState extends State<QuizPage> {
                       floatingActionButtonLocation:
                           FloatingActionButtonLocation.centerDocked,
                       floatingActionButton: Visibility(
-                        visible: !_showLevelChanged,
+                        visible: !_showChooseLevel,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                           child: SizedBox(
@@ -127,12 +139,6 @@ class _QuizPageState extends State<QuizPage> {
                                         return;
                                       }
 
-                                      _showLevelChanged =
-                                          questions[_index + 1].level.toInt() >
-                                              _level;
-
-                                      if (_showLevelChanged) _level++;
-
                                       _index++;
                                       setState(() {});
                                     }
@@ -144,14 +150,14 @@ class _QuizPageState extends State<QuizPage> {
                       body: ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         children: [
-                          if (_showLevelChanged) ...[
+                          if (_showChooseLevel) ...[
                             Padding(
                               padding: EdgeInsets.only(
-                                top: size.height * .25,
+                                top: size.height * .2,
                                 bottom: 20,
                               ),
                               child: Text(
-                                'Babak Baru\nLevel ${question.level}',
+                                'Pilih Tingkat\nKesulitan',
                                 style: GoogleFonts.lilitaOne(
                                   fontSize: 30,
                                   color: Colors.black,
@@ -165,23 +171,32 @@ class _QuizPageState extends State<QuizPage> {
                                   )
                                   .fadeIn(),
                             ),
-                            Center(
-                              child: SizedBox(
-                                height: 45,
-                                width: 250,
-                                child: PrimaryButton(
-                                  text: 'Lanjutkan',
-                                  onTap: () {
-                                    setState(() {
-                                      _showLevelChanged = false;
-                                    });
-                                  },
-                                ),
-                              )
-                                  .animate(
-                                    delay: const Duration(milliseconds: 400),
+                            ...List.generate(
+                              3,
+                              (index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Center(
+                                  child: SizedBox(
+                                    height: 45,
+                                    width: 250,
+                                    child: PrimaryButton(
+                                      text: 'Level ${index + 1}',
+                                      color: _kColors[index],
+                                      onTap: () {
+                                        setState(() {
+                                          _level = index + 1;
+                                          _showChooseLevel = false;
+                                        });
+                                      },
+                                    ),
                                   )
-                                  .fadeIn(),
+                                      .animate(
+                                        delay:
+                                            const Duration(milliseconds: 400),
+                                      )
+                                      .fadeIn(),
+                                ),
+                              ),
                             ),
                           ] else
                             QuestionCard(
