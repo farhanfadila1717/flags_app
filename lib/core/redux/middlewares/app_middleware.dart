@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flags_app/core/models/about/about.dart';
 import 'package:flags_app/core/models/flag/flag.dart';
-import 'package:flags_app/core/models/quiz/answer.dart';
 import 'package:flags_app/core/models/quiz/question.dart';
 import 'package:flags_app/core/redux/actions/app_action.dart';
 import 'package:flags_app/core/redux/states/app_state.dart';

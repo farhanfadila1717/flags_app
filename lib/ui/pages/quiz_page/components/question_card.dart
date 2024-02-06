@@ -5,7 +5,6 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flags_app/core/models/quiz/answer.dart';
 import 'package:flags_app/core/models/quiz/question.dart';
 import 'package:flags_app/core/redux/action_mapper.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -40,7 +39,7 @@ class _QuestionCardState extends State<QuestionCard> with AfterLayoutMixin {
       voiceText +=
           '${String.fromCharCode(65 + i)} ${widget.question.answers[i].text}\n';
     }
-    widget.getIt.get<FlutterTts>().speak(voiceText);
+    flutterTts.speak(voiceText);
   }
 
   FlutterTts get flutterTts => widget.getIt.get<FlutterTts>();
@@ -125,11 +124,7 @@ class _QuestionCardState extends State<QuestionCard> with AfterLayoutMixin {
                       child: Text(
                         text,
                         style: TextStyle(
-                          color: kDebugMode && item.correct
-                              ? Colors.amber
-                              : selected
-                                  ? Colors.white
-                                  : Colors.black,
+                          color: selected ? Colors.white : Colors.black,
                           fontWeight:
                               selected ? FontWeight.bold : FontWeight.normal,
                         ),

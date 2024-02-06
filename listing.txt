@@ -1,0 +1,2745 @@
+### About Dialog
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/app_action.dart';
+import 'package:flags_app/ui/components/default_store_connector.dart';
+import 'package:flags_app/ui/components/primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+
+class AboutDialog extends StatefulActionMapper {
+const AboutDialog({super.key});
+
+@override
+State<AboutDialog> createState() => _AboutDialogState();
+}
+
+class _AboutDialogState extends State<AboutDialog> {
+late final AudioPlayer _player;
+
+@override
+void initState() {
+super.initState();
+_player = AudioPlayer();
+final about = widget.store.state.about;
+if (about == null) {
+widget.dispatch(
+const GetAboutAction(),
+);
+} else {
+_initAudio(about.audio);
+}
+}
+
+void _initAudio(String url) async {
+try {
+await _player.setUrl(url);
+} catch (ex) {
+debugPrint(ex.toString());
+}
+}
+
+@override
+void dispose() {
+_player.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Dialog(
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+child: Padding(
+padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+child: DefaultStoreConnector(onDidChange: (previousState, state) async {
+if (previousState?.about?.audio != state.about?.audio) {
+if (state.about?.audio == null) return;
+await _player.setUrl(state.about!.audio);
+}
+}, builder: (context, state) {
+final about = state.about;
+
+if (about == null) {
+return const Center(
+child: CircularProgressIndicator.adaptive(),
+);
+}
+return Column(
+mainAxisSize: MainAxisSize.min,
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+const Text(
+'Tentang',
+style: TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+),
+),
+const SizedBox(height: 16),
+Text(
+about.creator,
+),
+const SizedBox(height: 16),
+Text(
+'Pembimbing Materi: ${about.dospem1}',
+),
+const SizedBox(height: 16),
+Text(
+'Pembimbing Teknik: ${about.dospem2}',
+),
+const SizedBox(height: 16),
+if (about.audio.isNotEmpty)
+SizedBox(
+height: 40,
+width: double.infinity,
+child: StreamBuilder<PlayerState>(
+stream: _player.playerStateStream,
+builder: (context, snapshot) {
+final playerState = snapshot.data;
+final processingState = playerState?.processingState;
+final playing = playerState?.playing;
+if (processingState == ProcessingState.loading ||
+processingState == ProcessingState.buffering) {
+return const Center(
+child: SizedBox.square(
+dimension: 24,
+child: CircularProgressIndicator(),
+),
+);
+} else if (playing != true) {
+return PrimaryButton(
+onTap: _player.play,
+child: const Icon(Icons.play_arrow),
+);
+} else if (processingState != ProcessingState.completed) {
+return PrimaryButton(
+onTap: _player.pause,
+child: const Icon(Icons.pause),
+);
+} else {
+return PrimaryButton(
+onTap: () => _player.seek(Duration.zero),
+child: const Icon(Icons.replay),
+);
+}
+},
+),
+),
+const SizedBox(height: 10),
+SizedBox(
+height: 40,
+width: double.infinity,
+child: PrimaryButton(
+text: 'Oke',
+color: Colors.green,
+onTap: () => Navigator.pop(context),
+),
+),
+],
+);
+}),
+),
+);
+}
+}
+
+
+### Bottom Area Bar
+
+import 'package:flutter/material.dart';
+
+class BottomAreaBar extends StatelessWidget {
+const BottomAreaBar({
+super.key,
+required this.children,
+this.padding,
+this.decoration,
+this.withShadow = false,
+});
+
+final List<Widget> children;
+final EdgeInsets? padding;
+final BoxDecoration? decoration;
+final bool withShadow;
+
+const BottomAreaBar.transparent({
+Key? key,
+required this.children,
+this.decoration = const BoxDecoration(),
+this.padding,
+this.withShadow = false,
+}) : super(key: key);
+
+@override
+Widget build(BuildContext context) {
+final ThemeData theme = Theme.of(context);
+return Container(
+padding: padding ?? const EdgeInsets.fromLTRB(20, 10, 20, 20),
+decoration: decoration ??
+BoxDecoration(
+color: theme.scaffoldBackgroundColor,
+boxShadow: withShadow
+? [
+const BoxShadow(
+color: Colors.black12,
+offset: Offset(0, 2),
+blurRadius: 8,
+),
+]
+: null,
+),
+child: SafeArea(
+top: false,
+child: Column(
+mainAxisSize: MainAxisSize.min,
+crossAxisAlignment: CrossAxisAlignment.start,
+children: children,
+),
+),
+);
+}
+}
+
+
+### Circle Name
+
+import 'package:flutter/material.dart';
+
+class CircleName extends StatelessWidget {
+const CircleName({
+super.key,
+required this.name,
+this.size = 46,
+this.fontSize = 20,
+this.color = Colors.blue,
+this.foregroundColor = Colors.white,
+});
+
+final String name;
+final double size;
+final double fontSize;
+final Color color;
+final Color foregroundColor;
+
+@override
+Widget build(BuildContext context) {
+return SizedBox.square(
+dimension: size,
+child: DecoratedBox(
+decoration: BoxDecoration(
+shape: BoxShape.circle,
+color: color,
+),
+child: Center(
+child: Text(
+name[0],
+style: TextStyle(
+color: foregroundColor,
+fontWeight: FontWeight.bold,
+fontSize: fontSize,
+),
+),
+),
+),
+);
+}
+}
+
+
+### Confirm Forgot Password Page
+
+import 'package:flutter/material.dart';
+
+class ConfirmForgotPasswordPage extends StatefulWidget {
+const ConfirmForgotPasswordPage({super.key});
+
+@override
+State<ConfirmForgotPasswordPage> createState() =>
+_ConfirmForgotPasswordPageState();
+}
+
+class _ConfirmForgotPasswordPageState extends State<ConfirmForgotPasswordPage> {
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(),
+);
+}
+}
+
+
+### Default Store Connector
+
+import 'package:flags_app/core/redux/states/app_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+
+class DefaultStoreConnector extends StatelessWidget {
+const DefaultStoreConnector({
+super.key,
+required this.builder,
+this.onInitialBuild,
+this.ignoreChange,
+this.onDidChange,
+});
+
+final ViewModelBuilder<AppState> builder;
+final OnInitialBuildCallback<AppState>? onInitialBuild;
+final IgnoreChangeTest<AppState>? ignoreChange;
+final OnDidChangeCallback<AppState>? onDidChange;
+
+@override
+Widget build(BuildContext context) {
+return StoreConnector<AppState, AppState>(
+converter: (Store<AppState> store) => store.state,
+builder: (context, state) => builder(context, state),
+onInitialBuild: onInitialBuild,
+ignoreChange: ignoreChange,
+onDidChange: onDidChange,
+);
+}
+}
+
+
+### Detail Flag Page
+
+import 'package:flags_app/core/models/flag/flag.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/ui/components/tts_card.dart';
+import 'package:flags_app/ui/components/tts_mixin.dart';
+import 'package:flutter/material.dart';
+
+class DetailFlagPage extends StatefulActionMapper {
+const DetailFlagPage({
+super.key,
+required this.flag,
+});
+
+final Flag flag;
+
+@override
+State<DetailFlagPage> createState() => _DetailFlagPageState();
+}
+
+class _DetailFlagPageState extends State<DetailFlagPage> with TtsMixin {
+@override
+void initState() {
+super.initState();
+initTts('${widget.flag.name}\n${widget.flag.descriptions}');
+}
+
+@override
+void dispose() {
+speakingWord.dispose();
+flutterTts.stop();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(
+title: Text(
+widget.flag.name,
+),
+),
+floatingActionButton: TtsCard(
+speakingWord: speakingWord,
+ttsState: ttsState,
+onPlay: playAudio,
+onPause: flutterTts.stop,
+),
+body: ListView(
+padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
+children: [
+Container(
+height: 200,
+width: double.infinity,
+decoration: BoxDecoration(
+borderRadius: BorderRadius.circular(20),
+gradient: const LinearGradient(
+colors: [
+Color(0xFFCBBDFF),
+Color(0xFF589AF0),
+],
+),
+),
+child: Center(
+child: Text(
+widget.flag.flag,
+style: const TextStyle(
+fontSize: 100,
+),
+),
+),
+),
+const SizedBox(height: 20),
+Text(
+widget.flag.name,
+style: const TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+),
+),
+const SizedBox(height: 10),
+Text(
+widget.flag.descriptions,
+),
+],
+),
+);
+}
+}
+
+
+### Flags Page
+
+import 'package:flags_app/core/models/flag/flag.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/app_action.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
+class FlagsPage extends StatefulActionMapper {
+const FlagsPage({super.key});
+
+@override
+State<FlagsPage> createState() => _FlagsPageState();
+}
+
+class _FlagsPageState extends State<FlagsPage> {
+late final TextEditingController _controller;
+late final ValueNotifier<List<Flag>> _flags;
+
+@override
+void initState() {
+super.initState();
+_controller = TextEditingController();
+_flags = ValueNotifier(widget.store.state.flags);
+}
+
+void _onSearch(String text) {
+final searched = widget.store.state.flags.where(
+(e) => e.name.toLowerCase().contains(text.toLowerCase()),
+);
+_flags.value = searched.toList();
+}
+
+@override
+void dispose() {
+_controller.dispose();
+_flags.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+final height = MediaQuery.sizeOf(context).height;
+return Scaffold(
+backgroundColor: Colors.white,
+body: RefreshIndicator(
+onRefresh: () async {
+widget.dispatch(
+const GetFlagsAction(),
+);
+return;
+},
+child: Scrollbar(
+child: CustomScrollView(
+slivers: [
+SliverAppBar(
+pinned: true,
+title: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+borderRadius: BorderRadius.circular(50),
+),
+child: Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: _controller,
+onChanged: _onSearch,
+decoration: const InputDecoration(
+border: InputBorder.none,
+contentPadding: EdgeInsets.symmetric(horizontal: 10),
+hintText: 'Cari negara',
+),
+),
+),
+),
+foregroundColor: Colors.black,
+backgroundColor: Colors.white,
+),
+ValueListenableBuilder(
+valueListenable: _flags,
+builder: (_, flags, __) {
+if (flags.isEmpty) {
+return SliverPadding(
+padding: EdgeInsets.only(top: height * .2),
+sliver: const SliverToBoxAdapter(
+child: Column(
+children: [
+Icon(
+Icons.search_off,
+size: 50,
+),
+SizedBox(height: 10),
+Text(
+'Pencarian tidak ditemukan',
+),
+],
+),
+),
+);
+}
+return SliverPadding(
+padding: const EdgeInsets.all(20),
+sliver: SliverMasonryGrid.count(
+crossAxisCount: 2,
+childCount: flags.length,
+mainAxisSpacing: 16,
+crossAxisSpacing: 16,
+itemBuilder: (_, index) {
+final item = flags[index];
+
+return GestureDetector(
+onTap: () => widget.dispatch(
+NavigateToNextAction(
+'/detail-flag',
+extra: item,
+),
+),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(20),
+border: Border.all(
+color: Colors.black12,
+),
+boxShadow: item.descriptions.isNotEmpty
+? const [
+BoxShadow(
+offset: Offset(0, 5),
+blurRadius: 5,
+color: Colors.black12,
+),
+]
+: null,
+),
+child: Padding(
+padding: const EdgeInsets.only(
+top: 20,
+bottom: 20,
+left: 20,
+right: 20,
+),
+child: Column(
+children: [
+Text(
+item.flag,
+style: const TextStyle(
+fontSize: 50,
+),
+),
+Text(
+item.name,
+textAlign: TextAlign.center,
+),
+],
+),
+),
+),
+);
+},
+),
+);
+},
+),
+const SliverToBoxAdapter(
+child: SizedBox(height: 30),
+),
+],
+),
+),
+),
+);
+}
+}
+
+
+### Forgot Password Page
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/authentication_action.dart';
+import 'package:flags_app/ui/components/text_field.dart';
+import 'package:flutter/material.dart';
+
+class ForgotPasswordPage extends StatefulActionMapper {
+const ForgotPasswordPage({super.key});
+
+@override
+State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+late final TextEditingController _emailController;
+
+@override
+void initState() {
+super.initState();
+_emailController = TextEditingController();
+}
+
+@override
+void dispose() {
+_emailController.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+body: SafeArea(
+child: ListView(
+padding: const EdgeInsets.all(20),
+children: [
+Visibility(
+visible: Navigator.canPop(context),
+child: Align(
+alignment: Alignment.topLeft,
+child: DecoratedBox(
+decoration: const BoxDecoration(
+color: Colors.black,
+shape: BoxShape.circle,
+),
+child: IconButton(
+onPressed: () => Navigator.pop(context),
+icon: const Icon(
+Icons.arrow_back,
+color: Colors.white,
+),
+),
+),
+),
+),
+const SizedBox(height: 30),
+const Text(
+'Lupa Password',
+style: TextStyle(
+fontWeight: FontWeight.bold,
+fontSize: 22,
+),
+),
+DefaultTextField(
+controller: _emailController,
+title: 'Email',
+hint: 'Masukkan email',
+margin: const EdgeInsets.only(top: 20),
+),
+const SizedBox(height: 30),
+SizedBox(
+height: 50,
+child: ElevatedButton(
+onPressed: () => widget.dispatch(
+SubmitForgotPasswordAction(
+_emailController.text,
+),
+),
+child: const Text('Oke'),
+),
+),
+],
+),
+),
+);
+}
+}
+
+
+### History Page
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/ui/components/tts_card.dart';
+import 'package:flags_app/ui/components/tts_mixin.dart';
+import 'package:flutter/material.dart';
+
+class HistoryPage extends StatefulActionMapper {
+const HistoryPage({super.key});
+
+@override
+State<HistoryPage> createState() => _HistoryPageState();
+}
+
+class _HistoryPageState extends State<HistoryPage> with TtsMixin {
+@override
+void initState() {
+super.initState();
+initTts(_kText);
+}
+
+@override
+void dispose() {
+speakingWord.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Stack(
+children: [
+const Positioned.fill(
+child: ColoredBox(color: Colors.white),
+),
+Align(
+alignment: Alignment.topRight,
+child: Image.asset(
+'assets/images/flag_bg.png',
+alignment: Alignment.bottomCenter,
+opacity: const AlwaysStoppedAnimation(0.1),
+fit: BoxFit.fitWidth,
+),
+),
+Align(
+alignment: Alignment.bottomCenter,
+child: Image.asset(
+'assets/images/bg_kuis.png',
+alignment: Alignment.bottomCenter,
+fit: BoxFit.fitWidth,
+opacity: const AlwaysStoppedAnimation(0.1),
+),
+),
+Scaffold(
+appBar: AppBar(
+title: const Text('Sejarah Bendera'),
+),
+floatingActionButton: TtsCard(
+speakingWord: speakingWord,
+ttsState: ttsState,
+onPlay: playAudio,
+onPause: flutterTts.stop,
+),
+backgroundColor: Colors.transparent,
+body: Scrollbar(
+child: ListView(
+padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+children: const [
+Text(
+_kText,
+textAlign: TextAlign.justify,
+),
+],
+),
+),
+),
+],
+);
+}
+}
+
+const _kText =
+'''Secara historis, bendera berasal dari standar militer, digunakan sebagai tanda lapangan. Sepanjang sejarah, berbagai contoh bendera proto tersebut ada: spanduk kain putih tentara dinasti Zhou pada abad ke-11 SM, standar vexillum yang dikibarkan oleh tentara Kekaisaran Romawi, Standar Hitam yang terkenal dibawa oleh Muhammad yang kemudian menjadi bendera Kekhalifahan Abbasiyah, dan berbagai "panji gagak" yang dikibarkan oleh para kepala suku Viking . Angelino Dulcert menerbitkan serangkaian bagan Portolan yang komprehensif pada abad ke-14 M, yang terkenal menampilkan gambar bendera beberapa negara – meskipun ini bukan "bendera nasional" yang seragam, karena beberapa kemungkinan merupakan standar pribadi penguasa negara masing-masing.
+
+Praktek mengibarkan bendera yang menunjukkan negara asal di luar konteks peperangan menjadi hal yang biasa terjadi pada bendera maritim . Desain bendera Belanda saat ini berasal dari varian Prinsenvlag ("Bendera Pangeran") yang berwarna oranye-putih-biru pada akhir abad ke-16, yang digunakan dalam Perang Kemerdekaan Belanda (1568–1648), yang berkembang pada awal Abad ke-17 sebagai Statenvlag ("Bendera Negara") merah-putih-biru, bendera angkatan laut Negara -Jenderal Republik Belanda, menjadikan bendera Belanda mungkin bendera tiga warna tertua yang terus digunakan, meskipun standarisasi warna yang tepat masih dilakukan. jauh di kemudian hari.
+
+Pada zaman layar di awal abad ke-17, Union Jack menemukan asal-usulnya, ketika James VI dari Skotlandia mewarisi takhta Inggris dan Irlandia (sebagai James I). Pada tanggal 12 April 1606, bendera baru yang mewakili persatuan agung antara Inggris dan Skotlandia ditetapkan dalam dekrit kerajaan, yang menyatakan bahwa bendera Inggris (palang merah dengan latar belakang putih, dikenal sebagai Salib St George ), dan bendera Inggris Skotlandia ( saltire putih dengan latar belakang biru, yang dikenal sebagai Saltire atau St Andrew's Cross), akan digabungkan, membentuk bendera Britania Raya dan Union Flag pertama  - tetapi kemudian tanpa Palang merah St. Patrick . Bendera ini terus digunakan sampai tanggal 1 Januari 1801, tanggal efektif penyatuan legislatif Inggris Raya dan Irlandia, ketika Salib St. Patrick (salib diagonal merah di atas putih) dimasukkan ke dalam bendera,  memberikan Union Jack desainnya saat ini.
+
+Dengan munculnya sentimen nasionalis pada akhir abad ke-18, bendera nasional juga mulai ditampilkan dalam konteks sipil.  Contoh awal yang penting termasuk bendera AS, yang pertama kali diadopsi sebagai panji angkatan laut pada tahun 1777 tetapi mulai ditampilkan sebagai simbol umum Amerika Serikat setelah Revolusi Amerika, dan Tiga Warna Prancis, yang menjadi simbol Amerika Serikat. Republik pada tahun 1790-an.
+
+Sebagian besar negara di Eropa melakukan standarisasi dan kodifikasi desain bendera maritim mereka sebagai bendera nasional, pada abad ke-19 dan awal abad ke-20. Spesifikasi bendera Denmark, berdasarkan bendera yang terus digunakan sejak abad ke-14, dikodifikasikan pada tahun 1748, sebagai bendera persegi panjang dengan proporsi tertentu, menggantikan variannya dengan belahan.  Bendera Swiss diperkenalkan pada tahun 1889, juga didasarkan pada bendera perang abad pertengahan.
+
+Di Eropa, desain tiga warna merah-putih-biru pada bendera Kerajaan Belanda menjadi populer, karena dikaitkan dengan bentuk pemerintahan republik melalui perang kemerdekaan yang panjang melawan Kerajaan Spanyol . Asosiasi tersebut semakin diperkuat setelah Revolusi Perancis (1789), ketika Perancis menggunakan warna yang sama, namun dengan garis vertikal dan bukan garis horizontal. Negara-negara lain di Eropa (seperti Irlandia, Rumania, dan Estonia ) serta di Amerika Selatan dan Tengah memilih tiga warna mereka sendiri untuk menyatakan kepatuhan mereka terhadap prinsip-prinsip kebebasan, kesetaraan, dan persaudaraan sebagaimana terkandung dalam bendera Prancis.
+
+Bendera Ottoman (sekarang bendera Turki) diadopsi pada tahun 1844. Negara-negara non-Eropa lainnya mengikuti tren ini pada akhir abad ke-19, bendera Qing Besar diperkenalkan pada tahun 1862, dan bendera Jepang diperkenalkan pada tahun 1870. Juga pada tahun 1870. Abad ke-19, sebagian besar negara di Amerika Selatan memperkenalkan bendera saat mereka merdeka (Peru pada tahun 1820, Bolivia pada tahun 1851, Kolombia pada tahun 1860, Brasil pada tahun 1822, dll.)
+
+Saat ini, terdapat 193 bendera nasional di dunia yang dikibarkan oleh negara-negara berdaulat yang tergabung dalam PBB.''';
+
+
+### Home Page
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flags_app/ui/components/circle_name.dart';
+import 'package:flags_app/ui/components/user_widget.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatefulActionMapper {
+const HomePage({super.key});
+
+@override
+State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+@override
+Widget build(BuildContext context) {
+final width = MediaQuery.sizeOf(context).width;
+return Scaffold(
+backgroundColor: Colors.white,
+body: CustomScrollView(
+slivers: [
+SliverAppBar(
+expandedHeight: 200,
+flexibleSpace: FlexibleSpaceBar(
+background: SizedBox.expand(
+child: Stack(
+children: [
+const Positioned.fill(
+child: DecoratedBox(
+decoration: BoxDecoration(
+gradient: LinearGradient(
+colors: [
+Color(0xFFCBBDFF),
+Color(0xFF589AF0),
+],
+),
+),
+),
+),
+Positioned.fill(
+child: Image.asset(
+'assets/images/flag_bg.png',
+alignment: Alignment.topRight,
+opacity: const AlwaysStoppedAnimation(.1),
+),
+),
+Positioned.fill(
+left: 20,
+right: 20,
+bottom: 20,
+child: UserWidget(builder: (_, user) {
+return Column(
+mainAxisAlignment: MainAxisAlignment.center,
+crossAxisAlignment: CrossAxisAlignment.center,
+children: [
+Row(
+children: [
+CircleName(
+name: user.fullName,
+),
+const SizedBox(width: 10),
+Text(
+'Hi, ${user.fullName}',
+style: const TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+color: Colors.white,
+),
+),
+],
+),
+],
+);
+}),
+),
+Positioned(
+width: width,
+height: 30,
+bottom: 0,
+child: const DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.vertical(
+top: Radius.circular(20),
+),
+),
+),
+),
+],
+),
+),
+),
+),
+SliverPadding(
+padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+sliver: SliverGrid.count(
+crossAxisCount: 2,
+crossAxisSpacing: 16,
+mainAxisSpacing: 16,
+children: [
+GestureDetector(
+onTap: () => widget.dispatch(
+const NavigateToNextAction(
+'/flags',
+),
+),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(20),
+border: Border.all(
+color: Colors.black12,
+),
+boxShadow: const [
+BoxShadow(
+offset: Offset(0, 5),
+blurRadius: 5,
+color: Colors.black12,
+),
+],
+),
+child: Padding(
+padding: const EdgeInsets.all(16),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+DecoratedBox(
+decoration: const BoxDecoration(
+color: Colors.black12,
+shape: BoxShape.circle,
+),
+child: Padding(
+padding: const EdgeInsets.all(8.0),
+child: Image.asset(
+'assets/images/ic_flag.png',
+height: 30,
+width: 30,
+),
+),
+),
+const SizedBox(height: 10),
+const Text(
+'Bendera',
+style: TextStyle(
+fontWeight: FontWeight.w600,
+fontSize: 16,
+),
+),
+],
+),
+),
+),
+),
+GestureDetector(
+onTap: () => widget.dispatch(
+const NavigateToNextAction(
+'/quiz',
+),
+),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(20),
+border: Border.all(
+color: Colors.black12,
+),
+boxShadow: const [
+BoxShadow(
+offset: Offset(0, 5),
+blurRadius: 5,
+color: Colors.black12,
+),
+],
+),
+child: Padding(
+padding: const EdgeInsets.all(16),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.blue.withOpacity(.1),
+shape: BoxShape.circle,
+),
+child: const Padding(
+padding: EdgeInsets.all(8.0),
+child: Icon(
+Icons.question_answer,
+color: Colors.blue,
+),
+),
+),
+const SizedBox(height: 10),
+const Text(
+'Kuis',
+style: TextStyle(
+fontWeight: FontWeight.w600,
+fontSize: 16,
+),
+),
+],
+),
+),
+),
+),
+GestureDetector(
+onTap: () => widget.dispatch(
+const NavigateToNextAction(
+'/history',
+),
+),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(20),
+border: Border.all(
+color: Colors.black12,
+),
+boxShadow: const [
+BoxShadow(
+offset: Offset(0, 5),
+blurRadius: 5,
+color: Colors.black12,
+),
+],
+),
+child: Padding(
+padding: const EdgeInsets.all(16),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.orange.withOpacity(.1),
+shape: BoxShape.circle,
+),
+child: const Padding(
+padding: EdgeInsets.all(8.0),
+child: Icon(
+Icons.history_edu,
+color: Colors.orange,
+),
+),
+),
+const SizedBox(height: 10),
+const Text(
+'Sejarah',
+style: TextStyle(
+fontWeight: FontWeight.w600,
+fontSize: 16,
+),
+),
+],
+),
+),
+),
+),
+GestureDetector(
+onTap: () => widget.dispatch(
+const NavigateToNextAction(
+'/profile',
+),
+),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(20),
+border: Border.all(
+color: Colors.black12,
+),
+boxShadow: const [
+BoxShadow(
+offset: Offset(0, 5),
+blurRadius: 5,
+color: Colors.black12,
+),
+],
+),
+child: Padding(
+padding: const EdgeInsets.all(16),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.green.withOpacity(.1),
+shape: BoxShape.circle,
+),
+child: const Padding(
+padding: EdgeInsets.all(8.0),
+child: Icon(
+Icons.person,
+color: Colors.green,
+),
+),
+),
+const SizedBox(height: 10),
+const Text(
+'Profil',
+style: TextStyle(
+fontWeight: FontWeight.w600,
+fontSize: 16,
+),
+),
+],
+),
+),
+),
+),
+],
+),
+),
+],
+),
+);
+}
+}
+
+
+### Info Dialog
+
+import 'package:flutter/material.dart';
+
+class InfoDialog extends StatelessWidget {
+const InfoDialog({
+super.key,
+required this.title,
+required this.message,
+required this.onTap,
+required this.onCancel,
+});
+
+final String title;
+final String message;
+final VoidCallback? onTap;
+final VoidCallback? onCancel;
+
+@override
+Widget build(BuildContext context) {
+return Dialog(
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+child: Padding(
+padding: const EdgeInsets.fromLTRB(20, 30, 20, 16),
+child: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+Text(
+title,
+style: const TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+),
+),
+const SizedBox(height: 10),
+Text(
+message,
+textAlign: TextAlign.center,
+),
+const SizedBox(height: 16),
+SizedBox(
+height: 45,
+width: double.infinity,
+child: ElevatedButton(
+onPressed: () {
+Navigator.pop(context);
+onTap?.call();
+},
+style: const ButtonStyle(
+elevation: MaterialStatePropertyAll(0),
+shape: MaterialStatePropertyAll(
+StadiumBorder(),
+),
+),
+child: const Text('Oke'),
+),
+),
+const SizedBox(height: 4),
+TextButton(
+onPressed: () {
+Navigator.pop(context);
+onCancel?.call();
+},
+child: const Text('Batal'),
+),
+],
+),
+),
+);
+}
+}
+
+
+### Loading Dialog
+
+import 'package:flutter/material.dart';
+
+class LoadingDialog extends StatelessWidget {
+const LoadingDialog({super.key});
+
+@override
+Widget build(BuildContext context) {
+return Dialog(
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+child: const Padding(
+padding: EdgeInsets.only(top: 30, bottom: 20),
+child: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+CircularProgressIndicator.adaptive(),
+SizedBox(height: 16),
+Text('Loading'),
+],
+),
+),
+);
+}
+}
+
+
+### Login Page
+
+import 'package:flags_app/core/models/authentication/form_login.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/authentication_action.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flags_app/ui/components/text_field.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
+class LoginPage extends StatefulActionMapper {
+const LoginPage({super.key});
+
+@override
+State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+late final TextEditingController _emailController;
+late final TextEditingController _passwordController;
+
+@override
+void initState() {
+super.initState();
+_emailController = TextEditingController();
+_passwordController = TextEditingController();
+}
+
+@override
+void dispose() {
+_emailController.dispose();
+_passwordController.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+body: SafeArea(
+child: ListView(
+padding: const EdgeInsets.all(20),
+children: [
+Visibility(
+visible: Navigator.canPop(context),
+child: Align(
+alignment: Alignment.topLeft,
+child: DecoratedBox(
+decoration: const BoxDecoration(
+color: Colors.black,
+shape: BoxShape.circle,
+),
+child: IconButton(
+onPressed: () => Navigator.pop(context),
+icon: const Icon(
+Icons.arrow_back,
+color: Colors.white,
+),
+),
+),
+),
+),
+const SizedBox(height: 30),
+const Text(
+'Masuk Akun',
+style: TextStyle(
+fontWeight: FontWeight.bold,
+fontSize: 22,
+),
+),
+DefaultTextField(
+controller: _emailController,
+title: 'Email',
+hint: 'Masukkan email',
+margin: const EdgeInsets.only(top: 20),
+),
+PasswordField(
+controller: _passwordController,
+margin: const EdgeInsets.only(top: 20),
+),
+Align(
+alignment: Alignment.topRight,
+child: TextButton(
+onPressed: () => widget.dispatch(
+const NavigateToNextAction(
+'/forgot-password',
+),
+),
+child: const Text('Lupa password'),
+),
+),
+const SizedBox(height: 30),
+SizedBox(
+height: 50,
+child: ElevatedButton(
+onPressed: () => widget.dispatch(
+SubmitLoginAction(
+login: FormLogin(
+email: _emailController.text,
+password: _passwordController.text,
+),
+),
+),
+child: const Text('Masuk'),
+),
+),
+const SizedBox(height: 20),
+Center(
+child: Text.rich(
+TextSpan(
+children: [
+const TextSpan(text: 'Belum mempunyai akun? '),
+TextSpan(
+text: 'Daftar sekarang',
+recognizer: TapGestureRecognizer()
+..onTap = () => widget.dispatch(
+const NavigateToNextAction('/register'),
+),
+style: const TextStyle(
+color: Colors.blue,
+fontWeight: FontWeight.w600,
+),
+),
+],
+),
+),
+),
+],
+),
+),
+);
+}
+}
+
+
+### Primary Button
+
+import 'package:flutter/material.dart';
+
+class PrimaryButton extends StatelessWidget {
+const PrimaryButton({
+super.key,
+this.text,
+this.color,
+this.onTap,
+this.style,
+this.child,
+});
+
+final String? text;
+final Color? color;
+final VoidCallback? onTap;
+final TextStyle? style;
+final Widget? child;
+
+@override
+Widget build(BuildContext context) {
+return ElevatedButton(
+onPressed: onTap,
+style: ButtonStyle(
+backgroundColor: MaterialStateProperty.resolveWith((states) {
+if (states.contains(MaterialState.disabled)) {
+return Colors.black12;
+}
+return color;
+}),
+shape: const MaterialStatePropertyAll(
+StadiumBorder(),
+),
+),
+child: child ?? Text(text ?? '-', style: style),
+);
+}
+}
+
+
+### Profile Page
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/authentication_action.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flags_app/core/router/navigation_destination.dart';
+import 'package:flags_app/ui/components/circle_name.dart';
+import 'package:flags_app/ui/components/user_widget.dart';
+import 'package:flutter/material.dart';
+
+class ProfilePage extends StatefulActionMapper {
+const ProfilePage({super.key});
+
+@override
+State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(
+title: const Text('Profil'),
+foregroundColor: Colors.black,
+backgroundColor: Colors.white,
+actions: [
+IconButton(
+onPressed: () => widget.dispatch(
+ShowDialogAction(
+destination: InfoDialogDestination(
+title: 'Keluar',
+message: 'apakah Anda yakin ingin keluar?',
+onTap: () => widget.dispatch(
+const LogoutAction(),
+),
+),
+),
+),
+icon: const Icon(
+Icons.exit_to_app,
+),
+),
+],
+),
+body: SafeArea(
+child: UserWidget(builder: (context, user) {
+return ListView(
+padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+children: [
+CircleName(
+name: user.fullName,
+size: 65,
+fontSize: 24,
+),
+_ProfileItem(
+title: 'ID',
+data: user.id,
+margin: const EdgeInsets.only(top: 30),
+),
+const Divider(
+height: 30,
+),
+_ProfileItem(
+title: 'Nama',
+data: user.fullName,
+),
+const Divider(
+height: 30,
+),
+_ProfileItem(
+title: 'Email',
+data: user.email,
+),
+],
+);
+}),
+),
+);
+}
+}
+
+class _ProfileItem extends StatelessWidget {
+const _ProfileItem({
+required this.title,
+required this.data,
+this.margin,
+});
+
+final String title;
+final String data;
+final EdgeInsetsGeometry? margin;
+
+@override
+Widget build(BuildContext context) {
+return Padding(
+padding: margin ?? EdgeInsets.zero,
+child: Row(
+children: [
+Text(title),
+const SizedBox(width: 20),
+Expanded(
+child: SelectableText(
+data,
+textAlign: TextAlign.end,
+),
+),
+],
+),
+);
+}
+}
+
+
+### Question Card
+
+import 'dart:async';
+
+import 'package:after_layout/after_layout.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flags_app/core/models/quiz/answer.dart';
+import 'package:flags_app/core/models/quiz/question.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+class QuestionCard extends StatefulActionMapper {
+const QuestionCard({
+super.key,
+required this.question,
+required this.answers,
+required this.onAnswer,
+});
+
+final Question question;
+final Map<Question, Answer> answers;
+final ValueChanged<Answer> onAnswer;
+
+@override
+State<QuestionCard> createState() => _QuestionCardState();
+}
+
+class _QuestionCardState extends State<QuestionCard> with AfterLayoutMixin {
+@override
+FutureOr<void> afterFirstLayout(BuildContext context) {
+_playAudio();
+}
+
+void _playAudio() {
+String voiceText =
+'${widget.question.question}. Pilihan jawabannya adalah ';
+
+for (int i = 0; i < widget.question.answers.length; i++) {
+voiceText +=
+'${String.fromCharCode(65 + i)} ${widget.question.answers[i].text}\n';
+}
+flutterTts.speak(voiceText);
+}
+
+FlutterTts get flutterTts => widget.getIt.get<FlutterTts>();
+
+void _onSelectAnswer(Answer answer) {
+widget.onAnswer(answer);
+flutterTts.speak('Anda memilih ${answer.text}');
+}
+
+@override
+void dispose() {
+flutterTts.stop();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+final question = widget.question;
+return Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+if (question.image.isNotEmpty)
+Container(
+height: 200,
+width: double.infinity,
+decoration: BoxDecoration(
+color: Colors.grey,
+borderRadius: BorderRadius.circular(20),
+image: DecorationImage(
+image: NetworkImage(question.image),
+fit: BoxFit.cover,
+),
+),
+),
+Center(
+child: Padding(
+padding: const EdgeInsets.only(top: 20),
+child: AnimatedTextKit(
+key: ValueKey(question),
+totalRepeatCount: 1,
+animatedTexts: [
+TypewriterAnimatedText(
+question.question,
+textAlign: TextAlign.center,
+textStyle: const TextStyle(
+fontSize: 16,
+),
+),
+],
+),
+),
+),
+const SizedBox(height: 30),
+...List.generate(
+question.answers.length,
+(index) {
+final item = question.answers[index];
+bool selected = false;
+
+if (widget.answers.containsKey(question)) {
+selected = widget.answers[question] == item;
+}
+
+final String text =
+'${String.fromCharCode(65 + index)}. ${item.text}';
+
+return Padding(
+padding: const EdgeInsets.only(bottom: 10),
+child: GestureDetector(
+onTap: () => _onSelectAnswer(item),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color:
+selected ? Colors.blue.withOpacity(.8) : Colors.white,
+border: selected ? null : Border.all(),
+borderRadius: BorderRadius.circular(4),
+),
+child: SizedBox(
+width: double.infinity,
+child: Padding(
+padding: const EdgeInsets.all(16),
+child: Text(
+text,
+style: TextStyle(
+color: kDebugMode && item.correct
+? Colors.amber
+: selected
+? Colors.white
+: Colors.black,
+fontWeight:
+selected ? FontWeight.bold : FontWeight.normal,
+),
+),
+),
+),
+),
+),
+)
+.animate(
+key: ValueKey(item),
+delay: Duration(milliseconds: 200 * index),
+)
+.fadeIn();
+},
+),
+],
+);
+}
+}
+
+
+### Quiz Page
+
+import 'package:flags_app/core/models/quiz/answer.dart';
+import 'package:flags_app/core/models/quiz/question.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flags_app/core/router/navigation_destination.dart';
+import 'package:flags_app/ui/components/default_store_connector.dart';
+import 'package:flags_app/ui/components/primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'components/question_card.dart';
+
+const _kColors = [
+Colors.green,
+Colors.blue,
+Colors.deepOrange,
+];
+
+class QuizPage extends StatefulActionMapper {
+const QuizPage({super.key});
+
+@override
+State<QuizPage> createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
+bool _isPlay = false, _showChooseLevel = true;
+final Map<Question, Answer> _answers = {};
+int _index = 0, _level = 1;
+
+List<Question> get questions => widget.store.state.questions
+.where((e) => e.level.toInt() == _level)
+.toList();
+
+void _onAnswer(Question question, Answer answer) async {
+if (_answers.containsKey(question)) {
+_answers.update(question, (value) => answer);
+} else {
+_answers[question] = answer;
+}
+
+setState(() {});
+}
+
+@override
+void setState(VoidCallback fn) {
+if (mounted) {
+super.setState(fn);
+}
+}
+
+@override
+Widget build(BuildContext context) {
+final size = MediaQuery.sizeOf(context);
+final viewPadding = MediaQuery.viewPaddingOf(context);
+
+return Stack(
+children: [
+const Positioned.fill(
+child: ColoredBox(
+color: Colors.white,
+),
+),
+Positioned(
+bottom: viewPadding.bottom,
+width: size.width,
+child: Image.asset(
+'assets/images/bg_kuis.png',
+alignment: Alignment.bottomCenter,
+fit: BoxFit.fitWidth,
+),
+),
+Align(
+alignment: Alignment.topRight,
+child: Image.asset(
+'assets/images/flag_bg.png',
+alignment: Alignment.bottomCenter,
+opacity: const AlwaysStoppedAnimation(0.1),
+fit: BoxFit.fitWidth,
+),
+),
+AnimatedSwitcher(
+duration: const Duration(milliseconds: 300),
+child: _isPlay
+? DefaultStoreConnector(
+builder: (context, state) {
+if (questions.isEmpty) {
+return const Scaffold(
+body: Center(
+child: CircularProgressIndicator.adaptive(),
+),
+);
+}
+
+final question = questions[_index];
+final isLast = questions.last == question;
+final hasAnswer = _answers.containsKey(question);
+
+return Scaffold(
+backgroundColor: Colors.transparent,
+appBar: AppBar(
+backgroundColor: Colors.transparent,
+leading: _showChooseLevel
+? const SizedBox.shrink()
+: IconButton(
+onPressed: () {
+if (_index == 0) {
+Navigator.pop(context);
+return;
+}
+setState(() {
+_index--;
+});
+},
+icon: const Icon(Icons.arrow_back),
+),
+),
+floatingActionButtonLocation:
+FloatingActionButtonLocation.centerDocked,
+floatingActionButton: Visibility(
+visible: !_showChooseLevel,
+child: Padding(
+padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+child: SizedBox(
+height: 50,
+width: double.infinity,
+child: PrimaryButton(
+text: isLast ? 'Selesai' : 'Selanjutnya',
+onTap: hasAnswer
+? () {
+if (isLast) {
+widget.store.dispatch(
+NavigateToAndReplaceAction(
+'/results-quiz',
+extra: _answers,
+),
+);
+return;
+}
+
+_index++;
+setState(() {});
+}
+: null,
+),
+),
+),
+),
+body: ListView(
+padding: const EdgeInsets.symmetric(horizontal: 20),
+children: [
+if (_showChooseLevel) ...[
+Padding(
+padding: EdgeInsets.only(
+top: size.height * .2,
+bottom: 20,
+),
+child: Text(
+'Pilih Tingkat\nKesulitan',
+style: GoogleFonts.lilitaOne(
+fontSize: 30,
+color: Colors.black,
+),
+textAlign: TextAlign.center,
+)
+.animate()
+.scale(
+curve: Curves.fastOutSlowIn,
+duration: const Duration(milliseconds: 400),
+)
+.fadeIn(),
+),
+...List.generate(
+3,
+(index) => Padding(
+padding: const EdgeInsets.only(bottom: 10),
+child: Center(
+child: SizedBox(
+height: 45,
+width: 250,
+child: PrimaryButton(
+text: 'Level ${index + 1}',
+color: _kColors[index],
+onTap: () {
+setState(() {
+_level = index + 1;
+_showChooseLevel = false;
+});
+},
+),
+)
+.animate(
+delay:
+const Duration(milliseconds: 400),
+)
+.fadeIn(),
+),
+),
+),
+] else
+QuestionCard(
+key: ValueKey(question),
+question: question,
+answers: _answers,
+onAnswer: (answer) => _onAnswer(
+question,
+answer,
+),
+),
+],
+),
+);
+},
+)
+: Scaffold(
+backgroundColor: Colors.transparent,
+body: SizedBox.expand(
+child: Column(
+mainAxisAlignment: MainAxisAlignment.center,
+crossAxisAlignment: CrossAxisAlignment.center,
+children: [
+Text(
+'Kuis Bendera Negara di Dunia!',
+style: GoogleFonts.lilitaOne(
+fontSize: 24,
+color: Colors.black,
+),
+),
+Padding(
+padding: const EdgeInsets.only(top: 20, bottom: 10),
+child: SizedBox(
+height: 45,
+width: 250,
+child: PrimaryButton(
+text: 'Mulai',
+onTap: () {
+setState(() {
+_isPlay = true;
+});
+},
+),
+),
+),
+Padding(
+padding: const EdgeInsets.only(bottom: 10),
+child: SizedBox(
+height: 45,
+width: 250,
+child: PrimaryButton(
+text: 'Tentang',
+color: Colors.orange,
+onTap: () => widget.dispatch(
+const ShowDialogAction(
+destination: AboutDialogDestination(),
+),
+),
+),
+),
+),
+SizedBox(
+height: 45,
+width: 250,
+child: PrimaryButton(
+text: 'Keluar',
+color: Colors.redAccent,
+onTap: () => Navigator.pop(context),
+),
+),
+]
+.animate(
+interval: const Duration(milliseconds: 130),
+)
+.fadeIn(
+curve: Curves.easeIn,
+duration: const Duration(milliseconds: 250),
+),
+),
+),
+),
+),
+],
+);
+}
+}
+
+
+### Register Page
+
+import 'package:flags_app/core/models/authentication/form_register_user.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/authentication_action.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
+class RegisterPage extends StatefulActionMapper {
+const RegisterPage({super.key});
+
+@override
+State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+late final TextEditingController _emailController;
+late final TextEditingController _passwordController;
+late final TextEditingController _nameController;
+late final TextEditingController _addressController;
+
+bool _isObsecure = true;
+
+@override
+void initState() {
+super.initState();
+_addressController = TextEditingController();
+_emailController = TextEditingController();
+_nameController = TextEditingController();
+_passwordController = TextEditingController();
+}
+
+@override
+void dispose() {
+_addressController.dispose();
+_emailController.dispose();
+_nameController.dispose();
+_passwordController.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+body: SafeArea(
+child: ListView(
+padding: const EdgeInsets.all(20),
+children: [
+Align(
+alignment: Alignment.topLeft,
+child: DecoratedBox(
+decoration: const BoxDecoration(
+color: Colors.black,
+shape: BoxShape.circle,
+),
+child: IconButton(
+onPressed: () => Navigator.pop(context),
+icon: const Icon(
+Icons.arrow_back,
+color: Colors.white,
+),
+),
+),
+),
+const SizedBox(height: 30),
+const Text(
+'Daftar Akun',
+style: TextStyle(
+fontWeight: FontWeight.bold,
+fontSize: 22,
+),
+),
+Padding(
+padding: const EdgeInsets.only(top: 20),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+border: Border.all(),
+),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+const Padding(
+padding: EdgeInsets.all(8.0),
+child: Text(
+'Nama Lengkap',
+style: TextStyle(
+fontSize: 12,
+),
+),
+),
+Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: _nameController,
+decoration: const InputDecoration(
+contentPadding: EdgeInsets.zero,
+border: InputBorder.none,
+hintText: 'Masukkan nama',
+),
+),
+),
+],
+),
+),
+),
+Padding(
+padding: const EdgeInsets.only(top: 20),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+border: Border.all(),
+),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+const Padding(
+padding: EdgeInsets.all(8.0),
+child: Text(
+'Email',
+style: TextStyle(
+fontSize: 12,
+),
+),
+),
+Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: _emailController,
+decoration: const InputDecoration(
+contentPadding: EdgeInsets.zero,
+border: InputBorder.none,
+hintText: 'Masukkan email',
+),
+),
+),
+],
+),
+),
+),
+Padding(
+padding: const EdgeInsets.only(top: 20, bottom: 30),
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+border: Border.all(),
+),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+const Padding(
+padding: EdgeInsets.all(8.0),
+child: Text(
+'Password',
+style: TextStyle(
+fontSize: 12,
+),
+),
+),
+Row(
+children: [
+Expanded(
+child: Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: _passwordController,
+obscureText: _isObsecure,
+decoration: const InputDecoration(
+border: InputBorder.none,
+hintText: 'Masukkan password',
+),
+),
+),
+),
+GestureDetector(
+onTap: () {
+setState(() {
+_isObsecure = !_isObsecure;
+});
+},
+child: Visibility(
+visible: !_isObsecure,
+replacement: const Icon(Icons.visibility_off),
+child: const Icon(Icons.visibility),
+),
+),
+const SizedBox(width: 10),
+],
+),
+],
+),
+),
+),
+SizedBox(
+height: 50,
+child: ElevatedButton(
+onPressed: () => widget.dispatch(
+SubmitRegisterAction(
+registerUser: FormRegisterUser(
+email: _emailController.text,
+password: _passwordController.text,
+fullName: _nameController.text,
+),
+),
+),
+child: const Text('Daftar'),
+),
+),
+const SizedBox(height: 20),
+Center(
+child: Text.rich(
+TextSpan(
+children: [
+const TextSpan(text: 'Sudah mempunyai akun? '),
+TextSpan(
+text: 'Masuk',
+recognizer: TapGestureRecognizer()
+..onTap = () => widget.dispatch(
+const NavigateToNextAction('/login'),
+),
+style: const TextStyle(
+color: Colors.blue,
+fontWeight: FontWeight.w600,
+),
+),
+],
+),
+),
+),
+],
+),
+),
+);
+}
+}
+
+
+### Results Quiz Page
+
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
+import 'package:flags_app/core/models/quiz/answer.dart';
+import 'package:flags_app/core/models/quiz/question.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/navigation_action.dart';
+import 'package:flags_app/ui/components/primary_button.dart';
+import 'package:flags_app/ui/components/user_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+
+class ResultsQuizPage extends StatefulActionMapper {
+const ResultsQuizPage({
+super.key,
+required this.answers,
+});
+
+final Map<Question, Answer> answers;
+
+@override
+State<ResultsQuizPage> createState() => _ResultsQuizPageState();
+}
+
+class _ResultsQuizPageState extends State<ResultsQuizPage> {
+late final ConfettiController _controllerTopCenter;
+int _correctAnswer = 0;
+double _percent = 0.0;
+
+@override
+void initState() {
+super.initState();
+_controllerTopCenter =
+ConfettiController(duration: const Duration(seconds: 10));
+widget.answers.forEach((key, value) {
+if (value.correct) {
+_correctAnswer++;
+}
+});
+_percent = (_correctAnswer / widget.answers.length).clamp(0.0, 1.0);
+if (_percent >= 0.7) {
+_controllerTopCenter.play();
+}
+}
+
+/// A custom Path to paint stars.
+Path drawStar(Size size) {
+// Method to convert degree to radians
+double degToRad(double deg) => deg * (pi / 180.0);
+
+const numberOfPoints = 5;
+final halfWidth = size.width / 2;
+final externalRadius = halfWidth;
+final internalRadius = halfWidth / 2.5;
+final degreesPerStep = degToRad(360 / numberOfPoints);
+final halfDegreesPerStep = degreesPerStep / 2;
+final path = Path();
+final fullAngle = degToRad(360);
+path.moveTo(size.width, halfWidth);
+
+for (double step = 0; step < fullAngle; step += degreesPerStep) {
+path.lineTo(halfWidth + externalRadius * cos(step),
+halfWidth + externalRadius * sin(step));
+path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+}
+path.close();
+return path;
+}
+
+@override
+void dispose() {
+_controllerTopCenter.dispose();
+super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+final percent100 = 100 * _percent;
+return Scaffold(
+backgroundColor: Colors.blue,
+body: Stack(
+alignment: Alignment.topCenter,
+children: [
+Align(
+alignment: Alignment.topRight,
+child: Image.asset(
+'assets/images/flag_bg.png',
+alignment: Alignment.bottomCenter,
+opacity: const AlwaysStoppedAnimation(0.1),
+fit: BoxFit.fitWidth,
+),
+),
+Align(
+alignment: Alignment.bottomCenter,
+child: Image.asset(
+'assets/images/bg_kuis.png',
+alignment: Alignment.bottomCenter,
+fit: BoxFit.fitWidth,
+),
+),
+//TOP CENTER - shoot down
+Positioned(
+top: -50,
+child: ConfettiWidget(
+confettiController: _controllerTopCenter,
+maxBlastForce: 5, // set a lower max blast force
+minBlastForce: 2, // set a lower min blast force
+emissionFrequency: 0.05,
+createParticlePath: drawStar,
+numberOfParticles: 10, // a lot of particles at once
+gravity: 1,
+),
+),
+SizedBox.expand(
+child: Column(
+mainAxisAlignment: MainAxisAlignment.center,
+crossAxisAlignment: CrossAxisAlignment.center,
+children: [
+UserWidget(
+builder: (_, user) => Text(
+'Hasil Kuis ${user.fullName}',
+style: GoogleFonts.lilitaOne(
+fontSize: 18,
+color: Colors.white,
+),
+),
+),
+const SizedBox(height: 20),
+CircularPercentIndicator(
+radius: 100,
+percent: _percent,
+animation: true,
+lineWidth: 10,
+linearGradient: const LinearGradient(
+colors: [
+Colors.white,
+Colors.white70,
+],
+),
+center: Text(
+'${percent100.toStringAsFixed(0)}%',
+style: const TextStyle(
+fontSize: 30,
+fontWeight: FontWeight.bold,
+color: Colors.white,
+),
+),
+backgroundColor: Colors.white10,
+),
+const SizedBox(height: 20),
+Text(
+'benar $_correctAnswer/${widget.answers.length}',
+style: const TextStyle(
+color: Colors.white,
+fontSize: 16,
+fontWeight: FontWeight.w500,
+),
+),
+const SizedBox(height: 30),
+SizedBox(
+height: 50,
+width: 230,
+child: PrimaryButton(
+text: 'Kuis Lagi',
+color: Colors.orange,
+onTap: () => widget.dispatch(
+const NavigateToAndReplaceAction('/quiz'),
+),
+),
+),
+const SizedBox(height: 10),
+TextButton(
+onPressed: () => widget.dispatch(
+const NavigateToRootAction(),
+),
+child: const Text(
+'Kembali ke Beranda',
+style: TextStyle(
+color: Colors.white,
+),
+),
+),
+],
+),
+),
+],
+),
+);
+}
+}
+
+
+### Splash Page
+
+import 'dart:async';
+
+import 'package:after_layout/after_layout.dart';
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flags_app/core/redux/actions/app_action.dart';
+import 'package:flags_app/core/redux/actions/authentication_action.dart';
+import 'package:flutter/material.dart';
+
+class SplashPage extends StatefulActionMapper {
+const SplashPage({super.key});
+
+@override
+State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> with AfterLayoutMixin {
+@override
+FutureOr<void> afterFirstLayout(BuildContext context) {
+widget.dispatches([
+const InitTtsAction(),
+const GetCurrentLoginAction(),
+const GetQuestionsAction(),
+const GetFlagsAction(),
+const GetAboutAction(),
+]);
+}
+
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+body: SizedBox.expand(
+child: Column(
+mainAxisAlignment: MainAxisAlignment.center,
+crossAxisAlignment: CrossAxisAlignment.center,
+children: [
+Image.asset(
+'assets/images/icon.png',
+height: 100,
+width: 100,
+),
+const SizedBox(height: 30),
+const SizedBox.square(
+dimension: 30,
+child: CircularProgressIndicator.adaptive(),
+),
+],
+),
+),
+);
+}
+}
+
+
+### Text Field
+
+import 'package:flutter/material.dart';
+
+class DefaultTextField extends StatelessWidget {
+const DefaultTextField({
+super.key,
+required this.controller,
+required this.title,
+required this.hint,
+this.margin,
+});
+
+final TextEditingController controller;
+final String title;
+final String hint;
+final EdgeInsetsGeometry? margin;
+
+@override
+Widget build(BuildContext context) {
+return Padding(
+padding: margin ?? EdgeInsets.zero,
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+border: Border.all(),
+),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+Padding(
+padding: const EdgeInsets.all(8.0),
+child: Text(
+title,
+style: const TextStyle(
+fontSize: 12,
+),
+),
+),
+Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: controller,
+decoration: InputDecoration(
+contentPadding: EdgeInsets.zero,
+border: InputBorder.none,
+hintText: hint,
+),
+),
+),
+],
+),
+),
+);
+}
+}
+
+class PasswordField extends StatefulWidget {
+const PasswordField({
+super.key,
+required this.controller,
+this.margin,
+});
+
+final TextEditingController controller;
+final EdgeInsetsGeometry? margin;
+
+@override
+State<PasswordField> createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+bool _isObsecure = true;
+
+@override
+Widget build(BuildContext context) {
+return Padding(
+padding: widget.margin ?? EdgeInsets.zero,
+child: DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black12,
+border: Border.all(),
+),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+const Padding(
+padding: EdgeInsets.all(8.0),
+child: Text(
+'Password',
+style: TextStyle(
+fontSize: 12,
+),
+),
+),
+Row(
+children: [
+Expanded(
+child: Padding(
+padding: const EdgeInsets.symmetric(horizontal: 10),
+child: TextField(
+controller: widget.controller,
+obscureText: _isObsecure,
+decoration: const InputDecoration(
+border: InputBorder.none,
+hintText: 'Masukkan password',
+),
+),
+),
+),
+GestureDetector(
+onTap: () {
+setState(() {
+_isObsecure = !_isObsecure;
+});
+},
+child: Visibility(
+visible: !_isObsecure,
+replacement: const Icon(Icons.visibility_off),
+child: const Icon(Icons.visibility),
+),
+),
+const SizedBox(width: 10),
+],
+),
+],
+),
+),
+);
+}
+}
+
+
+### Tts Card
+
+import 'package:flags_app/ui/components/tts_mixin.dart';
+import 'package:flutter/material.dart';
+
+class TtsCard extends StatelessWidget {
+const TtsCard({
+super.key,
+required this.speakingWord,
+required this.ttsState,
+required this.onPlay,
+required this.onPause,
+});
+
+final ValueNotifier<String> speakingWord;
+final TtsState ttsState;
+final VoidCallback onPlay;
+final VoidCallback onPause;
+
+@override
+Widget build(BuildContext context) {
+return Padding(
+padding: const EdgeInsets.symmetric(horizontal: 35),
+child: Row(
+children: [
+Builder(
+builder: (_) {
+if (ttsState == TtsState.playing) {
+return FloatingActionButton(
+heroTag: 'pause',
+onPressed: onPause,
+child: const Icon(Icons.pause),
+);
+}
+return FloatingActionButton(
+heroTag: 'play',
+onPressed: onPlay,
+child: const Icon(Icons.library_music_outlined),
+);
+},
+),
+const SizedBox(width: 16),
+ValueListenableBuilder(
+valueListenable: speakingWord,
+builder: (_, word, __) {
+if (word.isEmpty || ttsState == TtsState.stopped) {
+return const SizedBox.shrink();
+}
+
+return DecoratedBox(
+decoration: BoxDecoration(
+color: Colors.black87,
+borderRadius: BorderRadius.circular(3),
+),
+child: Padding(
+padding: const EdgeInsets.symmetric(
+horizontal: 10,
+vertical: 6,
+),
+child: Row(
+children: [
+const Icon(
+Icons.volume_up,
+color: Colors.white,
+),
+const SizedBox(width: 6),
+Text(
+word,
+style: const TextStyle(
+color: Colors.white,
+),
+),
+],
+),
+),
+);
+},
+),
+],
+),
+);
+}
+}
+
+
+### Tts Mixin
+
+import 'dart:convert';
+
+import 'package:flags_app/core/redux/action_mapper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+enum TtsState {
+playing,
+stopped,
+}
+
+mixin TtsMixin<T extends StatefulActionMapper> on State<T> {
+late final ValueNotifier<String> speakingWord;
+TtsState ttsState = TtsState.stopped;
+int speakIndex = 0;
+int paraghraphIndex = 0;
+String rawText = '';
+
+void initTts(String text) {
+speakingWord = ValueNotifier('');
+rawText = text;
+listenTts();
+}
+
+void listenTts() {
+flutterTts.setStartHandler(() {
+ttsState = TtsState.playing;
+setState(() {});
+});
+
+flutterTts.setCancelHandler(() {
+ttsState = TtsState.stopped;
+setState(() {});
+});
+
+flutterTts.setProgressHandler(
+(_, start, end, word) {
+speakIndex = end;
+speakingWord.value = word;
+},
+);
+}
+
+void playAudio() async {
+LineSplitter ls = const LineSplitter();
+
+final lines = ls.convert(rawText);
+
+if (paraghraphIndex == lines.length) {
+setState(() {
+ttsState = TtsState.stopped;
+paraghraphIndex = 0;
+speakIndex = 0;
+speakingWord.value = '';
+});
+return;
+}
+
+final text = lines[paraghraphIndex].trim();
+final speakText = text.substring(speakIndex, text.length);
+
+if (speakText.trim().isEmpty) {
+_nextParagraph(1);
+}
+
+final result = await flutterTts.speak(speakText);
+
+_nextParagraph(result);
+}
+
+void _nextParagraph(int result) {
+if (result == 1) {
+paraghraphIndex++;
+speakIndex = 0;
+playAudio();
+}
+}
+
+FlutterTts get flutterTts => widget.getIt.get<FlutterTts>();
+}
+
+
+### User Widget
+
+import 'package:flags_app/core/models/authentication/user.dart';
+import 'package:flags_app/ui/components/default_store_connector.dart';
+import 'package:flutter/material.dart';
+
+typedef UserBuilder = Widget Function(BuildContext, User);
+
+class UserWidget extends StatelessWidget {
+const UserWidget({
+super.key,
+required this.builder,
+this.replacement,
+});
+
+final UserBuilder builder;
+final Widget? replacement;
+
+@override
+Widget build(BuildContext context) {
+return DefaultStoreConnector(
+builder: (_, state) {
+if (state.authState.isLoggedIn) {
+return builder(context, state.authState.user!);
+}
+return replacement ?? const SizedBox.shrink();
+},
+);
+}
+}
+
+

@@ -15,6 +15,7 @@ class App extends StatelessWidget {
       child: MaterialApp.router(
         routerConfig: getIt.get<GoRouter>(),
         theme: ThemeData(
+          useMaterial3: false,
           scaffoldBackgroundColor: Colors.white,
           appBarTheme: const AppBarTheme(
             foregroundColor: Colors.black,
